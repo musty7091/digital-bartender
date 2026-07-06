@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#facc15"/>
+      <stop offset="48%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#fb7185"/>
+    </linearGradient>
+    <linearGradient id="liquid" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="100%" stop-color="#1d0b04"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="#07040d"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- coupe glass -->
+  <g>
+    <path d="M146 168 L366 168 L280 268 C270 280 270 296 280 306 L280 306 L232 306 C242 296 242 280 232 268 Z"
+          fill="none" stroke="#1d0b04" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M158 180 L354 180 L272 276 C265 284 265 296 272 304 L240 304 C247 296 247 284 240 276 Z"
+          fill="#1d0b04" opacity="0.92"/>
+    <path d="M158 180 L354 180 L330 208 L182 208 Z" fill="#fff7ed" opacity="0.5"/>
+    <rect x="248" y="304" width="16" height="70" rx="8" fill="#1d0b04"/>
+    <rect x="206" y="366" width="100" height="18" rx="9" fill="#1d0b04"/>
+  </g>
+
+  <!-- sparkle -->
+  <g fill="#1d0b04">
+    <path d="M376 120 l8 20 20 8 -20 8 -8 20 -8 -20 -20 -8 20 -8 z" opacity="0.85"/>
+  </g>
+</svg>

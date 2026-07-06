@@ -1,0 +1,277 @@
+
+/* ============================================================
+   DİJİTAL BARMEN — Tema ve animasyon stilleri
+   ============================================================ */
+
+/* ---------- Yerel fontlar (internetsiz çalışır) ---------- */
+
+:root{
+  --amber:#f59e0b;
+  --rose:#fb7185;
+  --ink:#020617;
+}
+
+html,body{ height:100%; overflow:hidden; }
+body{
+  font-family:'Outfit',sans-serif;
+  background:
+    radial-gradient(900px 500px at 85% 8%,  rgba(79,70,229,.22), transparent 60%),
+    radial-gradient(700px 420px at 8% 92%,  rgba(244,63,94,.14), transparent 60%),
+    radial-gradient(600px 380px at 50% 115%, rgba(245,158,11,.10), transparent 60%),
+    var(--ink);
+  color:#e2e8f0;
+}
+.font-neon{ font-family:'Tilt Neon',sans-serif; }
+
+/* ---------- Neon yazılar ---------- */
+.neon-amber{ color:var(--amber); text-shadow:0 0 8px rgba(245,158,11,.9), 0 0 26px rgba(245,158,11,.45); }
+.neon-rose { color:var(--rose);  text-shadow:0 0 8px rgba(251,113,133,.9), 0 0 26px rgba(251,113,133,.45); }
+
+.neon-flicker{ animation:flicker 7s infinite; }
+@keyframes flicker{
+  0%,100%{ opacity:1; }
+  91%{ opacity:1; } 92%{ opacity:.55; } 93%{ opacity:1; }
+  95%{ opacity:.7; } 96%{ opacity:1; }
+}
+
+/* ---------- Cam paneller ---------- */
+.glass-panel{
+  background:linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+
+/* ---------- İnce kaydırma çubuğu ---------- */
+.slim-scroll::-webkit-scrollbar{ width:5px; }
+.slim-scroll::-webkit-scrollbar-thumb{ background:rgba(245,158,11,.4); border-radius:99px; }
+.slim-scroll{ scrollbar-width:thin; scrollbar-color:rgba(245,158,11,.4) transparent; }
+
+/* ============================================================
+   BARDAK / SHAKER / KARIŞTIRMA BARDAĞI
+   ============================================================ */
+.bowl{
+  position:relative;
+  background:linear-gradient(115deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.03) 30%, rgba(255,255,255,.02) 70%, rgba(255,255,255,.12) 100%);
+  border:1.5px solid rgba(255,255,255,.28);
+  border-top:1.5px solid rgba(255,255,255,.45);
+  backdrop-filter:blur(6px);
+  box-shadow:
+    inset 0 0 24px rgba(255,255,255,.06),
+    0 18px 44px rgba(0,0,0,.55),
+    0 0 34px rgba(245,158,11,.10);
+  overflow:hidden;
+}
+.bowl::after{ /* cam üzerindeki dikey ışık şeridi */
+  content:""; position:absolute; top:4%; bottom:6%; left:12%;
+  width:9%; border-radius:99px;
+  background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.02));
+  pointer-events:none; z-index:20;
+}
+.bowl.metal{ /* bakır kupa (Moscow Mule) */
+  background:linear-gradient(115deg, rgba(251,146,60,.45), rgba(120,53,15,.55) 45%, rgba(251,146,60,.35));
+  border-color:rgba(253,186,116,.55);
+  box-shadow:inset 0 0 28px rgba(0,0,0,.35), 0 18px 44px rgba(0,0,0,.55), 0 0 34px rgba(251,146,60,.18);
+}
+.bowl.steel{ /* çelik shaker gövdesi */
+  background:linear-gradient(115deg, rgba(226,232,240,.38), rgba(100,116,139,.22) 40%, rgba(226,232,240,.30));
+  border-color:rgba(226,232,240,.45);
+}
+.stem{ width:9px; background:linear-gradient(90deg, rgba(255,255,255,.25), rgba(255,255,255,.06)); box-shadow:0 0 10px rgba(255,255,255,.08); }
+.foot{ height:8px; border-radius:99px; background:linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.3), rgba(255,255,255,.05)); }
+
+/* ---------- Sıvı katmanları ---------- */
+.liquid-stack{ position:absolute; inset:auto 0 0 0; top:0; display:flex; flex-direction:column-reverse; z-index:5; }
+.layer{
+  width:100%; height:0%;
+  transition:height 1.15s cubic-bezier(.3,.9,.35,1);
+  position:relative;
+  opacity:.92;
+}
+.layer::before{ /* katman yüzeyi parlaması */
+  content:""; position:absolute; top:0; left:0; right:0; height:5px;
+  background:linear-gradient(180deg, rgba(255,255,255,.45), transparent);
+  opacity:.7;
+}
+
+/* ---------- Dökme akışı (pour stream) ---------- */
+.stream{
+  position:absolute; width:7px; border-radius:99px;
+  transform-origin:top center; transform:scaleY(0);
+  filter:drop-shadow(0 0 8px currentColor);
+  z-index:60; pointer-events:none;
+}
+.stream.on{ animation:pourStream 1.15s ease-in forwards; }
+@keyframes pourStream{
+  0%  { transform:scaleY(0); opacity:0; }
+  12% { transform:scaleY(1); opacity:.95; }
+  80% { transform:scaleY(1); opacity:.95; }
+  100%{ transform:scaleY(1); opacity:0; }
+}
+
+/* ---------- Buz küpleri ---------- */
+.ice{
+  position:absolute; border-radius:9px;
+  background:linear-gradient(140deg, rgba(255,255,255,.75), rgba(186,230,253,.30) 55%, rgba(255,255,255,.15));
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:inset 0 0 10px rgba(255,255,255,.6), 0 2px 8px rgba(0,0,0,.25);
+  animation:iceDrop .8s cubic-bezier(.34,1.4,.5,1) both;
+  z-index:12;
+}
+@keyframes iceDrop{
+  0%  { transform:translateY(-320px) rotate(-40deg); opacity:0; }
+  55% { opacity:1; }
+  75% { transform:translateY(8px) rotate(6deg); }
+  100%{ transform:translateY(0) rotate(0); }
+}
+
+/* ---------- Katı parçalar (nane, meyve) ---------- */
+.bit{
+  position:absolute; font-size:20px; z-index:11;
+  animation:iceDrop .9s cubic-bezier(.34,1.3,.5,1) both;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));
+}
+
+/* ---------- Süsleme ---------- */
+.garnish{
+  position:absolute; font-size:48px; z-index:40;
+  animation:popIn .6s cubic-bezier(.3,1.6,.5,1) both;
+  filter:drop-shadow(0 0 10px rgba(245,158,11,.45));
+}
+@keyframes popIn{ 0%{ transform:scale(0) rotate(-40deg); } 100%{ transform:scale(1) rotate(0); } }
+
+/* ---------- Tuzlu / şekerli kenar ---------- */
+.rim-salt{
+  position:absolute; height:10px; border-radius:99px;
+  background:repeating-linear-gradient(90deg, rgba(255,255,255,.95) 0 4px, rgba(255,255,255,.25) 4px 7px);
+  box-shadow:0 0 12px rgba(255,255,255,.6);
+  animation:popIn .5s ease both; z-index:35;
+}
+
+/* ---------- Kabarcıklar ---------- */
+.bubble{
+  position:absolute; bottom:6px; border-radius:99px;
+  background:rgba(255,255,255,.75); z-index:13;
+  animation:rise linear both;
+}
+@keyframes rise{
+  0%  { transform:translateY(0) scale(.6); opacity:0; }
+  15% { opacity:.9; }
+  100%{ transform:translateY(-190px) scale(1.15); opacity:0; }
+}
+
+/* ---------- Hareket animasyonları ---------- */
+.shaking{ animation:shakeIt .38s ease-in-out 5; }
+@keyframes shakeIt{
+  0%,100%{ transform:translate(0,0) rotate(0); }
+  20%{ transform:translate(-13px,-9px) rotate(-7deg); }
+  45%{ transform:translate(12px,7px) rotate(6deg); }
+  70%{ transform:translate(-9px,5px) rotate(-4deg); }
+}
+
+.stirring .liquid-stack{ animation:swirl 1.5s ease-in-out 2; }
+@keyframes swirl{
+  0%,100%{ transform:skewX(0); }
+  25%{ transform:skewX(4deg) translateX(3px); }
+  75%{ transform:skewX(-4deg) translateX(-3px); }
+}
+
+.muddling{ animation:tamp .45s ease-in-out 4; }
+@keyframes tamp{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(9px) scaleY(.985); } }
+
+.tilting{ animation:tiltPour 2s ease-in-out both; }
+@keyframes tiltPour{
+  0%  { transform:rotate(0); }
+  25% { transform:rotate(-38deg) translate(-8px,-6px); }
+  80% { transform:rotate(-38deg) translate(-8px,-6px); }
+  100%{ transform:rotate(0); }
+}
+
+/* ---------- Malzeme rozeti ---------- */
+.ing-badge{ animation:badgeIn .5s cubic-bezier(.3,1.4,.5,1) both; }
+@keyframes badgeIn{
+  0%  { transform:translateY(-18px) scale(.85); opacity:0; }
+  100%{ transform:translateY(0) scale(1); opacity:1; }
+}
+
+/* ---------- Podyum ışığı ---------- */
+.stage-glow{
+  background:radial-gradient(ellipse at center, rgba(245,158,11,.28), rgba(245,158,11,.05) 55%, transparent 75%);
+  filter:blur(4px);
+}
+
+/* ---------- Liste durum stilleri ---------- */
+.step-active{
+  border-color:rgba(245,158,11,.65)!important;
+  background:linear-gradient(90deg, rgba(245,158,11,.16), rgba(251,113,133,.08))!important;
+  box-shadow:0 0 18px rgba(245,158,11,.18);
+}
+.step-done{ opacity:.55; }
+
+.item-active{
+  border-color:rgba(245,158,11,.7)!important;
+  background:linear-gradient(90deg, rgba(245,158,11,.15), transparent)!important;
+}
+
+/* Yükleniyor dönüşü */
+.spin{ animation:spin 1s linear infinite; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* ---------- Erişilebilirlik ---------- */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
+
+
+/* ============================================================
+   REACT SAHNE YERLEŞİMİ (motor React'e taşınırken eklendi)
+   ============================================================ */
+.stage{
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  min-height:420px;
+  padding:24px 8px 8px;
+  width:100%;
+  overflow:hidden; /* kaplar kenardan taşmasın */
+}
+.stage-glow{
+  position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+  width:78%; height:60px;
+  background:radial-gradient(ellipse at center, rgba(245,158,11,.28), rgba(245,158,11,.05) 55%, transparent 75%);
+  filter:blur(4px); pointer-events:none;
+}
+.stage-vessels{
+  position:relative; z-index:2;
+  display:flex; align-items:flex-end; justify-content:center;
+  gap:36px;
+}
+.vessel{ position:relative; display:flex; flex-direction:column; align-items:center; }
+.glass-column{ position:relative; display:flex; flex-direction:column; align-items:center; }
+.glass-wrap{ position:relative; display:flex; flex-direction:column; align-items:center; }
+.vessel-label{
+  margin-top:8px; font-size:10px; text-transform:uppercase;
+  letter-spacing:.1em; color:#64748b;
+}
+.shaker-cap{
+  width:78px; height:36px; border-radius:12px 12px 5px 5px;
+  background:linear-gradient(180deg,#cbd5e1,#64748b);
+  box-shadow:0 0 14px rgba(255,255,255,.15); margin-bottom:3px;
+}
+.garnish{ position:absolute; top:-24px; right:2px; }
+.rim-salt{ position:absolute; top:-4px; z-index:35; }
+
+/* Mobil: sahneyi ekrana sığacak şekilde küçült ve ortala */
+@media (max-width:640px){
+  .stage{ min-height:340px; padding:12px 4px 4px; }
+  .stage-vessels{
+    gap:14px;
+    transform:scale(.72);
+    transform-origin:bottom center;
+  }
+}
+/* Çok dar telefonlar (iki kaplı sahnelerde) biraz daha küçült */
+@media (max-width:400px){
+  .stage-vessels{ gap:8px; transform:scale(.62); }
+}
