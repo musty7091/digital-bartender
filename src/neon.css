@@ -11,7 +11,10 @@
   --ink:#020617;
 }
 
-html,body{ height:100%; overflow:hidden; }
+/* html,body yüksekliği ve kaydırması App düzeni tarafından yönetilir.
+   (Eski masaüstü prototipindeki 'height:100%; overflow:hidden' kaldırıldı;
+   aksi halde mobilde sahne görünümünde alttaki içeriğe kaydırılamıyordu.) */
+html,body{ min-height:100%; }
 body{
   font-family:'Outfit',sans-serif;
   background:

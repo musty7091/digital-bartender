@@ -66,10 +66,10 @@
   display:flex; flex-direction:column; gap:12px;
   min-height:0; min-width:0;
 }
-.detail{ gap:18px; overflow-y:auto; }
+.detail{ gap:18px; }
 @media (min-width:1024px){
   .sidebar{ max-height:calc(100dvh - 120px); }
-  .detail{ max-height:calc(100dvh - 120px); }
+  .detail{ max-height:calc(100dvh - 120px); overflow-y:auto; }
 }
 
 /* ---------- Arama ---------- */
