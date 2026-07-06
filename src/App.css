@@ -209,3 +209,111 @@
   background:linear-gradient(90deg,#f59e0b,#fbbf24); color:#1a1205; border:none;
 }
 .toast button.ghost{ background:transparent; color:#94a3b8; border:1px solid rgba(255,255,255,.15); }
+
+/* ============================================================
+   İMZA KOKTEYLLERİ — ekle butonu, rozet, form modalı
+   ============================================================ */
+.add-cocktail{
+  width:100%; padding:11px 14px; border-radius:12px;
+  font-size:14px; font-weight:700; letter-spacing:.01em;
+  background:linear-gradient(90deg, rgba(245,158,11,.18), rgba(251,113,133,.14));
+  border:1px dashed rgba(245,158,11,.55); color:#fcd34d;
+  transition:all .15s;
+}
+.add-cocktail:hover{ background:linear-gradient(90deg, rgba(245,158,11,.28), rgba(251,113,133,.2)); }
+.add-plus{ font-size:16px; }
+
+.li-badge{
+  display:inline-block; font-size:9px; font-weight:800; letter-spacing:.08em;
+  padding:1px 6px; border-radius:99px; margin-right:6px; vertical-align:middle;
+  background:linear-gradient(90deg,#f59e0b,#fb7185); color:#1a1205;
+}
+
+.recipe-actions{ display:flex; gap:8px; justify-content:center; margin-top:8px; }
+.mini-btn{
+  padding:5px 12px; border-radius:9px; font-size:12px; font-weight:600;
+  background:rgba(2,6,23,.5); color:#e2e8f0; border:1px solid rgba(255,255,255,.15);
+  transition:all .12s;
+}
+.mini-btn:hover{ border-color:rgba(245,158,11,.5); }
+.mini-danger{ color:#fca5a5; border-color:rgba(248,113,113,.3); }
+.mini-danger:hover{ border-color:rgba(248,113,113,.7); background:rgba(127,29,29,.25); }
+
+/* ---------- Form modalı ---------- */
+.modal-overlay{
+  position:fixed; inset:0; z-index:200;
+  background:rgba(2,6,23,.72); backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center; padding:16px;
+}
+.modal{
+  width:100%; max-width:560px; max-height:90dvh;
+  border-radius:22px; padding:0; overflow:hidden;
+  display:flex; flex-direction:column;
+}
+.modal-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 20px 12px; border-bottom:1px solid rgba(255,255,255,.08);
+}
+.modal-title{ margin:0; font-size:20px; color:var(--amber); text-shadow:0 0 10px rgba(245,158,11,.5); }
+.modal-x{
+  width:34px; height:34px; border-radius:9px; font-size:15px;
+  background:rgba(2,6,23,.5); color:#94a3b8; border:1px solid rgba(255,255,255,.12);
+}
+.modal-x:hover{ color:#e2e8f0; }
+
+.form-body{ padding:16px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:14px; }
+
+.field{ display:flex; flex-direction:column; gap:5px; }
+.field-label{ font-size:12px; color:#94a3b8; font-weight:600; }
+.field-input{
+  width:100%; padding:9px 11px; border-radius:10px;
+  border:1px solid rgba(255,255,255,.14); background:rgba(2,6,23,.55);
+  color:#e2e8f0; font-size:14px; outline:none; transition:border-color .15s;
+}
+.field-input:focus{ border-color:rgba(245,158,11,.65); }
+select.field-input{ cursor:pointer; }
+.field-row{ display:flex; gap:12px; }
+.field-row .field{ flex:1; }
+.field-narrow{ flex:0 0 96px !important; }
+
+/* Malzeme editörü */
+.ing-editor{ display:flex; flex-direction:column; gap:8px; }
+.ing-edit-row{ display:flex; gap:6px; align-items:center; }
+.ing-name-in{ flex:1; min-width:0; }
+.ing-ml-in{ flex:0 0 62px; }
+.ing-color-in{
+  flex:0 0 38px; width:38px; height:38px; padding:0;
+  border:1px solid rgba(255,255,255,.2); border-radius:9px;
+  background:transparent; cursor:pointer;
+}
+.chip{
+  flex:0 0 auto; padding:6px 9px; border-radius:8px; font-size:11px; font-weight:600;
+  background:rgba(2,6,23,.5); color:#64748b; border:1px solid rgba(255,255,255,.12);
+  transition:all .12s;
+}
+.chip-on{ background:rgba(245,158,11,.18); color:#fcd34d; border-color:rgba(245,158,11,.6); }
+.ing-del{
+  flex:0 0 auto; width:30px; height:30px; border-radius:8px; font-size:12px;
+  background:transparent; color:#94a3b8; border:1px solid rgba(255,255,255,.12);
+}
+.ing-del:hover:not(:disabled){ color:#fca5a5; border-color:rgba(248,113,113,.5); }
+.ing-del:disabled{ opacity:.3; }
+.add-ing{
+  align-self:flex-start; margin-top:2px; padding:7px 12px; border-radius:9px;
+  font-size:13px; font-weight:600;
+  background:rgba(2,6,23,.5); color:#fcd34d; border:1px solid rgba(245,158,11,.4);
+}
+.add-ing:hover{ background:rgba(245,158,11,.12); }
+
+.form-error{
+  margin:0; padding:9px 12px; border-radius:9px; font-size:13px;
+  background:rgba(127,29,29,.3); color:#fca5a5; border:1px solid rgba(248,113,113,.4);
+}
+
+.modal-actions{
+  display:flex; gap:10px; justify-content:flex-end;
+  padding:14px 20px; border-top:1px solid rgba(255,255,255,.08);
+}
+
+/* Boş imza sekmesi */
+.empty{ display:flex; flex-direction:column; gap:12px; align-items:center; }

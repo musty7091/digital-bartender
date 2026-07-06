@@ -7,12 +7,19 @@ import {
   type Category,
   type Recipe,
 } from "./data/recipes";
+import {
+  loadCustom,
+  upsertCustom,
+  deleteCustom,
+  isCustom,
+} from "./data/customStore";
 import { compileSteps, ACTION_ICON, colorOf } from "./engine/compile";
 import { MixologyStage } from "./components/MixologyStage";
+import { RecipeForm } from "./components/RecipeForm";
 import { useInstallPrompt, usePwaUpdate } from "./hooks/usePwa";
 
 const AGE_KEY = "dijitalBarmen.age.v1";
-const TAB_ORDER: Category[] = ["all", "u", "c", "e"];
+const TAB_ORDER: Category[] = ["all", "u", "c", "e", "custom"];
 const AUTO_MS = 2600;
 
 function App() {
@@ -24,6 +31,11 @@ function App() {
   const [recipe, setRecipe] = useState<Recipe>(RECIPES[0]);
   const [stepIndex, setStepIndex] = useState(-1);
   const [auto, setAuto] = useState(false);
+
+  // İmza kokteylleri (kullanıcı, localStorage)
+  const [custom, setCustom] = useState<Recipe[]>(() => loadCustom());
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<Recipe | undefined>(undefined);
 
   // Mobil: liste ↔ sahne geçişi. Masaüstünde her ikisi de aynı anda görünür.
   const [isMobile, setIsMobile] = useState(
@@ -47,9 +59,12 @@ function App() {
   const steps = useMemo(() => compileSteps(recipe), [recipe]);
   const total = steps.length;
 
+  // Hazır + imza kokteyllerinin tümü
+  const allRecipes = useMemo(() => [...RECIPES, ...custom], [custom]);
+
   const list = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("tr");
-    let items = RECIPES.slice();
+    let items = allRecipes.slice();
     if (tab !== "all") items = items.filter((r) => r.cat === tab);
     if (q)
       items = items.filter((r) => {
@@ -62,13 +77,43 @@ function App() {
       });
     items.sort((a, b) => a.n.localeCompare(b.n, "tr"));
     return items;
-  }, [tab, query]);
+  }, [tab, query, allRecipes]);
 
   function selectRecipe(r: Recipe) {
     setAuto(false);
     setRecipe(r);
     setStepIndex(-1);
     setMobileView("stage"); // mobilde sahneye geç (masaüstünde etkisiz)
+  }
+
+  // İmza kokteyli kaydet (ekle/güncelle)
+  function saveCustom(r: Recipe) {
+    const updated = upsertCustom(r);
+    setCustom(updated);
+    setFormOpen(false);
+    setEditing(undefined);
+    setTab("custom");
+    selectRecipe(r);
+  }
+
+  // İmza kokteyli sil
+  function removeCustom(id: string) {
+    const updated = deleteCustom(id);
+    setCustom(updated);
+    // Silinen kokteyl seçiliyse ilk tarife dön
+    if (recipe.id === id) {
+      setRecipe(RECIPES[0]);
+      setStepIndex(-1);
+    }
+  }
+
+  function openAdd() {
+    setEditing(undefined);
+    setFormOpen(true);
+  }
+  function openEdit(r: Recipe) {
+    setEditing(r);
+    setFormOpen(true);
   }
 
   useEffect(() => {
@@ -139,6 +184,10 @@ function App() {
             />
           </div>
 
+          <button className="add-cocktail" onClick={openAdd}>
+            <span className="add-plus">＋</span> İmza Kokteyli Ekle
+          </button>
+
           <div className="tabs slim-scroll">
             {TAB_ORDER.map((c) => (
               <button
@@ -160,13 +209,24 @@ function App() {
                 }
                 onClick={() => selectRecipe(r)}
               >
-                <span className="li-name">{r.n}</span>
+                <span className="li-name">
+                  {isCustom(r.id) && <span className="li-badge">İmza</span>}
+                  {r.n}
+                </span>
                 <span className="li-glass">
                   {(GLASSES[r.g] || GLASSES.highball).name}
                 </span>
               </button>
             ))}
-            {list.length === 0 && (
+            {list.length === 0 && tab === "custom" && !query && (
+              <div className="empty">
+                <p>Henüz imza kokteylin yok.</p>
+                <button className="ctrl ctrl-play" onClick={openAdd}>
+                  İlk Kokteylini Ekle
+                </button>
+              </div>
+            )}
+            {list.length === 0 && (query || tab !== "custom") && (
               <p className="empty">
                 “{query}” için sonuç yok. Farklı bir isim deneyin.
               </p>
@@ -186,6 +246,26 @@ function App() {
           <div className="recipe-head">
             <h2 className="recipe-name font-neon">{recipe.n}</h2>
             <p className="recipe-desc">{recipe.d}</p>
+            {isCustom(recipe.id) && (
+              <div className="recipe-actions">
+                <button className="mini-btn" onClick={() => openEdit(recipe)}>
+                  ✎ Düzenle
+                </button>
+                <button
+                  className="mini-btn mini-danger"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `"${recipe.n}" kokteylini silmek istediğine emin misin?`
+                      )
+                    )
+                      removeCustom(recipe.id);
+                  }}
+                >
+                  🗑 Sil
+                </button>
+              </div>
+            )}
           </div>
 
           <MixologyStage recipe={recipe} stepIndex={stepIndex} />
@@ -293,6 +373,17 @@ function App() {
           </section>
         </aside>
       </div>
+
+      {formOpen && (
+        <RecipeForm
+          editing={editing}
+          onSave={saveCustom}
+          onCancel={() => {
+            setFormOpen(false);
+            setEditing(undefined);
+          }}
+        />
+      )}
 
       {(canInstall || offlineReady || needRefresh) && (
         <div className="toasts">
