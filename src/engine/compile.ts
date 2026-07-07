@@ -9,6 +9,19 @@ import { ING_COLORS, type Recipe } from "../data/recipes";
 export const GLASS_CAP = 78; // bardaktaki azami görünür doluluk (%)
 export const MIX_CAP = 62; // shaker / karıştırma bardağı azami doluluk (%)
 
+// Miktar birimi tercihi: ml veya cl (1 cl = 10 ml)
+export type Unit = "ml" | "cl";
+
+export function formatAmount(ml: number, unit: Unit): string {
+  if (unit === "ml") return `${ml}ml`;
+  const cl = ml / 10;
+  // 4.5 → "4,5cl" (Türkçe ondalık), tam sayıysa "3cl"
+  const s = Number.isInteger(cl)
+    ? String(cl)
+    : String(Math.round(cl * 10) / 10).replace(".", ",");
+  return `${s}cl`;
+}
+
 export const colorOf = (c: string): string =>
   c && c.startsWith("#") ? c : ING_COLORS[c] || "#f59e0b";
 
@@ -70,7 +83,7 @@ const ICE_LABEL: Record<string, string> = {
   crushed: "Kırık Buz",
 };
 
-export function compileSteps(r: Recipe): Step[] {
+export function compileSteps(r: Recipe, unit: Unit = "ml"): Step[] {
   const steps: Step[] = [];
   const usesMixer = r.m === "shake" || r.m === "stirup";
   const mixerName = r.m === "shake" ? "shakera" : "karıştırma bardağına";
@@ -130,7 +143,7 @@ export function compileSteps(r: Recipe): Step[] {
       color: colorOf(ck),
       fill,
       fizz: (flags || "").includes("f"),
-      label: `${ml}ml ${label}`,
+      label: `${formatAmount(ml, unit)} ${label}`,
       text: `${label} ${usesMixer ? mixerName : "bardağa"} dökün.`,
     });
   });
@@ -173,7 +186,7 @@ export function compileSteps(r: Recipe): Step[] {
       color: colorOf(ck),
       fill: Math.max(4, (ml / sumAll) * GLASS_CAP),
       fizz: (flags || "").includes("f"),
-      label: `${ml}ml ${label}`,
+      label: `${formatAmount(ml, unit)} ${label}`,
       text: `${label} ile tamamlayın.`,
     });
   });

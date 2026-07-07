@@ -182,11 +182,11 @@ body{
 .muddling{ animation:tamp .45s ease-in-out 4; }
 @keyframes tamp{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(9px) scaleY(.985); } }
 
-.tilting{ animation:tiltPour 2s ease-in-out both; }
+.tilting{ animation:tiltPour 2s ease-in-out both; transform-origin:bottom right; }
 @keyframes tiltPour{
   0%  { transform:rotate(0); }
-  25% { transform:rotate(-38deg) translate(-8px,-6px); }
-  80% { transform:rotate(-38deg) translate(-8px,-6px); }
+  25% { transform:rotate(38deg) translate(10px,-6px); }
+  80% { transform:rotate(38deg) translate(10px,-6px); }
   100%{ transform:rotate(0); }
 }
 

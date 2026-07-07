@@ -13,14 +13,31 @@ import {
   deleteCustom,
   isCustom,
 } from "./data/customStore";
-import { compileSteps, ACTION_ICON, colorOf } from "./engine/compile";
+import {
+  loadProducts,
+  loadFinal,
+  type Product,
+} from "./data/productStore";
+import {
+  compileSteps,
+  ACTION_ICON,
+  colorOf,
+  formatAmount,
+  type Unit,
+} from "./engine/compile";
 import { MixologyStage } from "./components/MixologyStage";
 import { RecipeForm } from "./components/RecipeForm";
+import { ProductAdmin } from "./components/ProductAdmin";
+import { ProductStrip } from "./components/ProductStrip";
+import { KioskAttract } from "./components/KioskAttract";
+import { Finale } from "./components/Finale";
 import { useInstallPrompt, usePwaUpdate } from "./hooks/usePwa";
 
 const AGE_KEY = "dijitalBarmen.age.v1";
 const TAB_ORDER: Category[] = ["all", "u", "c", "e", "custom"];
 const AUTO_MS = 2600;
+const KIOSK_IDLE_MS = 90_000;
+const UNIT_KEY = "dijitalBarmen.unit.v1"; // kioskta 90 sn dokunulmazsa cazibe ekranı
 
 function App() {
   const [ageAccepted, setAgeAccepted] = useState(
@@ -36,6 +53,88 @@ function App() {
   const [custom, setCustom] = useState<Recipe[]>(() => loadCustom());
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Recipe | undefined>(undefined);
+
+  // Porsiyon (1×–8×): ml'ler ölçeklenir, animasyon oranları aynı kalır
+  const [servings, setServings] = useState(1);
+
+  // Miktar birimi tercihi (ml/cl) — cihazda hatırlanır
+  const [unit, setUnitState] = useState<Unit>(
+    () => (localStorage.getItem(UNIT_KEY) === "cl" ? "cl" : "ml")
+  );
+  function setUnit(u: Unit) {
+    setUnitState(u);
+    localStorage.setItem(UNIT_KEY, u);
+  }
+
+  // Final ekranı: son adım tamamlanınca gerçek kokteyl fotoğrafına geçiş.
+  // 'finaleAt' hangi (tarif+adım) için finalin açık olduğunu tutar; adım
+  // veya tarif değişince anahtar eşleşmez ve final kendiliğinden kapanır.
+  const [finaleAt, setFinaleAt] = useState<string | null>(null);
+  const [finalPhoto, setFinalPhoto] = useState<string | null>(null);
+
+  // Önerilen ürünler (IndexedDB) + admin ekranı + kiosk modu
+  const [products, setProducts] = useState<Product[]>([]);
+  const [adminOpen, setAdminOpen] = useState(
+    () => window.location.hash === "#admin"
+  );
+  const [kiosk] = useState(() => window.location.hash === "#kiosk");
+  const [attract, setAttract] = useState(kiosk); // kiosk açılışta cazibe ekranı
+
+  // Ürünleri yükle (admin kapanınca yenile ki eklenenler görünsün)
+  useEffect(() => {
+    let on = true;
+    loadProducts().then((list) => {
+      if (on) setProducts(list);
+    });
+    return () => {
+      on = false;
+    };
+  }, [adminOpen]);
+
+  // Seçili kokteylin final fotoğrafını yükle (admin kapanınca da yenile)
+  useEffect(() => {
+    let on = true;
+    loadFinal(recipe.id).then((img) => {
+      if (on) setFinalPhoto(img);
+    });
+    return () => {
+      on = false;
+    };
+  }, [recipe, adminOpen]);
+
+  // Son adım tamamlanınca (süsleme animasyonu bitince) finali göster
+  const finaleKey = recipe.id + ":" + stepIndex;
+  useEffect(() => {
+    if (stepIndex < 0) return;
+    if (stepIndex !== compileSteps(recipe).length - 1) return;
+    const t = window.setTimeout(() => setFinaleAt(finaleKey), 1500);
+    return () => window.clearTimeout(t);
+  }, [stepIndex, recipe, finaleKey]);
+  const showFinale = finaleAt === finaleKey && stepIndex >= 0;
+
+  // #admin hash'i ile yönetim ekranı aç/kapa
+  useEffect(() => {
+    const onHash = () => setAdminOpen(window.location.hash === "#admin");
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  // Kiosk boşta kalma: dokunuş yoksa cazibe ekranına dön
+  useEffect(() => {
+    if (!kiosk) return;
+    let timer = window.setTimeout(() => setAttract(true), KIOSK_IDLE_MS);
+    const reset = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setAttract(true), KIOSK_IDLE_MS);
+    };
+    window.addEventListener("pointerdown", reset);
+    window.addEventListener("keydown", reset);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("pointerdown", reset);
+      window.removeEventListener("keydown", reset);
+    };
+  }, [kiosk]);
 
   // Mobil: liste ↔ sahne geçişi. Masaüstünde her ikisi de aynı anda görünür.
   const [isMobile, setIsMobile] = useState(
@@ -56,7 +155,23 @@ function App() {
   const { needRefresh, offlineReady, applyUpdate, dismissOfflineReady } =
     usePwaUpdate();
 
-  const steps = useMemo(() => compileSteps(recipe), [recipe]);
+  // Porsiyona göre ölçeklenmiş tarif: ml'ler × porsiyon.
+  // Oranlar değişmediği için sahne animasyonu birebir aynı kalır,
+  // yalnızca adım etiketleri ve malzeme listesi ölçeklenir.
+  const scaledRecipe = useMemo<Recipe>(() => {
+    if (servings === 1) return recipe;
+    return {
+      ...recipe,
+      ing: recipe.ing.map(
+        (row) => [row[0], row[1] * servings, row[2], row[3]] as typeof row
+      ),
+    };
+  }, [recipe, servings]);
+
+  const steps = useMemo(
+    () => compileSteps(scaledRecipe, unit),
+    [scaledRecipe, unit]
+  );
   const total = steps.length;
 
   // Hazır + imza kokteyllerinin tümü
@@ -83,6 +198,7 @@ function App() {
     setAuto(false);
     setRecipe(r);
     setStepIndex(-1);
+    setServings(1);
     setMobileView("stage"); // mobilde sahneye geç (masaüstünde etkisiz)
   }
 
@@ -268,7 +384,57 @@ function App() {
             )}
           </div>
 
-          <MixologyStage recipe={recipe} stepIndex={stepIndex} />
+          <div className="stage-wrap">
+            <MixologyStage recipe={scaledRecipe} stepIndex={stepIndex} />
+            {showFinale && (
+              <Finale
+                recipe={recipe}
+                photo={finalPhoto}
+                onReplay={() => {
+                  setFinaleAt(null);
+                  restart();
+                }}
+              />
+            )}
+          </div>
+
+          <div className="servings">
+            <span className="servings-label">Porsiyon</span>
+            <button
+              className="ctrl servings-btn"
+              onClick={() => setServings((s) => Math.max(1, s - 1))}
+              disabled={servings <= 1}
+              aria-label="Porsiyonu azalt"
+            >
+              −
+            </button>
+            <span className="servings-value neon-amber">{servings}×</span>
+            <button
+              className="ctrl servings-btn"
+              onClick={() => setServings((s) => Math.min(8, s + 1))}
+              disabled={servings >= 8}
+              aria-label="Porsiyonu artır"
+            >
+              +
+            </button>
+
+            <span className="unit-sep" />
+
+            <div className="unit-toggle" role="group" aria-label="Birim seçimi">
+              <button
+                className={"unit-btn" + (unit === "ml" ? " unit-on" : "")}
+                onClick={() => setUnit("ml")}
+              >
+                ml
+              </button>
+              <button
+                className={"unit-btn" + (unit === "cl" ? " unit-on" : "")}
+                onClick={() => setUnit("cl")}
+              >
+                cl
+              </button>
+            </div>
+          </div>
 
           <div className="controls">
             <button
@@ -355,9 +521,11 @@ function App() {
           </section>
 
           <section>
-            <h3 className="detail-title">Malzemeler</h3>
+            <h3 className="detail-title">
+              Malzemeler{servings > 1 ? ` (${servings} porsiyon)` : ""}
+            </h3>
             <ul className="ings">
-              {recipe.ing.map((row, i) => (
+              {scaledRecipe.ing.map((row, i) => (
                 <li key={i} className="ing">
                   <span
                     className="ing-dot"
@@ -366,11 +534,15 @@ function App() {
                     }
                   />
                   <span className="ing-name">{row[0]}</span>
-                  <span className="ing-ml">{row[1]} ml</span>
+                  <span className="ing-ml">{formatAmount(row[1], unit)}</span>
                 </li>
               ))}
             </ul>
           </section>
+
+          <ProductStrip
+            products={products.filter((p) => p.recipeId === recipe.id)}
+          />
         </aside>
       </div>
 
@@ -385,7 +557,29 @@ function App() {
         />
       )}
 
-      {(canInstall || offlineReady || needRefresh) && (
+      {adminOpen && (
+        <ProductAdmin
+          recipes={allRecipes}
+          onClose={() => {
+            setAdminOpen(false);
+            if (window.location.hash === "#admin")
+              window.history.replaceState(null, "", " ");
+          }}
+        />
+      )}
+
+      {kiosk && attract && (
+        <KioskAttract
+          recipes={allRecipes}
+          products={products}
+          onEnter={(r) => {
+            setAttract(false);
+            selectRecipe(r);
+          }}
+        />
+      )}
+
+      {!kiosk && (canInstall || offlineReady || needRefresh) && (
         <div className="toasts">
           {canInstall && (
             <div className="toast">
